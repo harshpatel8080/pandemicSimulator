@@ -3,23 +3,30 @@ var MAXX = 0;
 var MINY = 0;
 var MAXY = 0;
 const CHANGEPOSITION = 5;
-const WEEKS = 10;
+const WEEKS = 52;
 const CURETIME = 14;
-const TIME = 1000;
+const TIME = 100;
 
-var population = 5000;
-const immunityPercent = 20;
-const oneShotPercent = 5;
-const twoShotPercent = 10;
-const recoveryPercent = 10;
-const infectedPercent = 5;
+var totalPopulation = 5000;
+var immunityPercent = 20;
+var oneShotPercent = 10;
+var twoShotPercent = 5;
+var recoveryPercent = 10;
+var infectedPercent = 5;
 
-const immunity = Math.floor(population * immunityPercent / 100);
-const oneShot = Math.floor(population * oneShotPercent / 100);
-const twoShot = Math.floor(population * twoShotPercent / 100);
-var recovery = Math.floor(population * recoveryPercent / 100);
-var infected = Math.floor(population * infectedPercent / 100);
+var healthy = totalPopulation - Math.floor(totalPopulation * infectedPercent / 100);
+var immunity = Math.floor(totalPopulation * immunityPercent / 100);
+var oneShot = Math.floor(totalPopulation * oneShotPercent / 100);
+var twoShot = Math.floor(totalPopulation * twoShotPercent / 100);
+var recovery = Math.floor(totalPopulation * recoveryPercent / 100);
+var infected = Math.floor(totalPopulation * infectedPercent / 100);
+var deadPercent = 0
+var populationPercent = 100
 var dead = 0;
+let initPopulation = totalPopulation
+
+
+var temp = []
 
 const dots = [];
 
@@ -46,23 +53,50 @@ function setBounds() {
     const myDiv = document.getElementById("canvas");
     const rect = myDiv.getBoundingClientRect();
 
-    MINX = rect.left - 20;
-    MINY = rect.top -230;
-    MAXX = rect.right - 40;
-    MAXY = rect.bottom -240;
+    MINX = rect.left;
+    MINY = rect.top;
+    MAXX = rect.right;
+    MAXY = rect.bottom;
 
     console.log(MINX + MAXX);
     console.log(MINY + MAXY);
 
 }
-function setElementAttribute() {
+function setInputAttribute() {
+    document.getElementById("populationInput").innerHTML = healthy;
+    document.getElementById("immunityInput").innerHTML = immunityPercent;
+    document.getElementById("infectedInput").innerHTML = infectedPercent;
+    document.getElementById("oneShotInput").innerHTML = oneShotPercent;
+    document.getElementById("twoShotInput").innerHTML = twoShotPercent;
+    document.getElementById("recoveryInput").innerHTML = recoveryPercent;
+}
 
-    document.getElementById("population").innerHTML = population
-    document.getElementById("immunityPercent").innerHTML = immunityPercent
-    document.getElementById("infectedPercent").innerHTML = infectedPercent
-    document.getElementById("oneShotPercent").innerHTML = oneShotPercent
-    document.getElementById("twoShotPercent").innerHTML = twoShotPercent
-    document.getElementById("recoveryPercent").innerHTML = recoveryPercent
+function setAttribute() {
+    document.getElementById("population").innerHTML = Math.trunc(healthy);
+    document.getElementById("immunity").innerHTML = immunity;
+    document.getElementById("infected").innerHTML = infected;
+    document.getElementById("oneShot").innerHTML = oneShot;
+    document.getElementById("twoShot").innerHTML = twoShot;
+    document.getElementById("recovery").innerHTML = recovery;
+    document.getElementById("dead").innerHTML = dead;
+}
+
+function setPercentAttribute() {
+    document.getElementById("populationPercent").innerHTML = populationPercent;
+    document.getElementById("infectedPercent").innerHTML = infectedPercent;
+    document.getElementById("recoveryPercent").innerHTML = recoveryPercent;
+    document.getElementById("deadPercent").innerHTML = deadPercent;
+    document.getElementById("immunityPercent").innerHTML = immunityPercent;
+    document.getElementById("oneShotPercent").innerHTML = oneShotPercent;
+    document.getElementById("twoShotPercent").innerHTML = twoShotPercent;
+
+    populationPercent = (healthy / initPopulation * 100).toFixed(2);
+    infectedPercent = (infected / initPopulation * 100).toFixed(2);
+    recoveryPercent = (recovery / initPopulation * 100).toFixed(2);
+    deadPercent = (dead / initPopulation * 100).toFixed(2);
+    immunityPercent = (immunity / initPopulation * 100).toFixed(2);
+    oneShotPercent = (oneShot / initPopulation * 100).toFixed(2);
+    twoShotPercent = (twoShot / initPopulation * 100).toFixed(2);
 }
 
 function setValues() {
@@ -92,48 +126,43 @@ function updatePosition(dot) {
 }
 
 function randomIndex(attribute) {
-    const indexes = [];
-    for (let i = 0; i < attribute; i++) {
-        indexes.push(Math.floor(Math.random() * population));
+    const indexes = new Set();
+
+    while (indexes.size < attribute) {
+        indexes.add(Math.floor(Math.random() * initPopulation));
     }
     return indexes;
 }
-
 function assignAttributes() {
     let indexes;
-    const usedIndexes = new Set(); // To track indexes already used for oneShot or twoShot
+    const usedIndexes = new Set();
 
-    // Assign immunity
     indexes = randomIndex(immunity);
     for (const i of indexes) {
         if (dots[i]) dots[i].immunity = true;
     }
 
-    // Assign infected status
     indexes = randomIndex(infected);
     for (const i of indexes) {
         if (dots[i]) dots[i].status = "infected";
     }
 
-    // Assign oneShot
     indexes = randomIndex(oneShot);
     for (const i of indexes) {
         if (dots[i] && !usedIndexes.has(i)) {
             dots[i].oneShot = true;
-            usedIndexes.add(i); // Mark this index as used
+            usedIndexes.add(i);
         }
     }
 
-    // Assign twoShot
     indexes = randomIndex(twoShot);
     for (const i of indexes) {
         if (dots[i] && !usedIndexes.has(i)) {
             dots[i].twoShot = true;
-            usedIndexes.add(i); // Mark this index as used
+            usedIndexes.add(i);
         }
     }
 
-    // Assign recovery status
     indexes = randomIndex(recovery);
     for (const i of indexes) {
         if (dots[i]) dots[i].status = "recovery";
@@ -142,7 +171,7 @@ function assignAttributes() {
 
 
 function initializeAllDots() {
-    for (let i = 0; i < population; i++) {
+    for (let i = 0; i < initPopulation; i++) {
         const dot = new DotBean(i, 0, 0);
         initializeXY(dot);
         dots.push(dot);
@@ -171,7 +200,7 @@ function updateColor(dotElement, dot) {
             break;
         default:
             dotElement.style.backgroundColor = "rgb(109, 209, 255)"; // Healthy
-            dotElement.style.scale = "1"
+            dotElement.style.scale = "2"
     }
 }
 
@@ -187,7 +216,7 @@ function createDots() {
 }
 
 function overlap(dot1, dot2) {
-    return Math.abs(dot1.x - dot2.x) < 2 && Math.abs(dot1.y - dot2.y) < 2;
+    return Math.abs(dot1.x - dot2.x) < 3 && Math.abs(dot1.y - dot2.y) < 3;
 }
 
 function updateSimulation() {
@@ -196,11 +225,13 @@ function updateSimulation() {
         updatePosition(dot);
     }
 
+
+
     for (let i = 0; i < dots.length; i++) {
         for (let j = i + 1; j < dots.length; j++) {
             if (overlap(dots[i], dots[j])) {
-                if (dots[i].status !== "dead" && dots[j].status !== "dead") {
-                    if (dots[i].status === "infected" || dots[j].status === "infected") {
+                if (dots[i].status != "dead" && dots[j].status != "dead") {
+                    if ((dots[i].status == "infected" && dots[j].status == "healthy") || (dots[i].status == "healthy" && dots[j].status == "infected")) {
                         let targetDot = dots[i].status === "infected" ? dots[j] : dots[i];
 
                         let chance = 100;
@@ -209,12 +240,16 @@ function updateSimulation() {
                         if (targetDot.oneShot) chance -= 5;
                         if (targetDot.twoShot) chance -= 10;
 
+
                         if (Math.random() * 100 < chance) {
                             if (targetDot.status === "recovery") {
                                 recovery--;
+                            } else if (targetDot.status == "healthy") {
+                                healthy--
                             }
                             targetDot.status = "infected";
                             infected++;
+
                         }
                     }
                 }
@@ -226,6 +261,15 @@ function updateSimulation() {
             if (dot.infectedDuration >= CURETIME) {
                 if (Math.random() * 100 < 15) {
                     dot.status = "dead";
+                    if (dot.oneShot) {
+                        oneShot--;
+                    }
+                    if (dot.twoShot) {
+                        twoShot--;
+                    }
+                    if (dot.immunity) {
+                        immunity--;
+                    }
                     dead++;
                 } else {
                     dot.status = "recovery";
@@ -244,23 +288,54 @@ function updateSimulation() {
     }
 }
 
+let i = 1
 function getDatasetData() {
 
-    return {
-        population: population - infected - recovery - dead, infected, recovery, dead
-    }
+    temp.push({
+        day: i++,
+        population: healthy,
+        infected,
+        recovery,
+        dead,
+        immunity,
+        oneShot,
+        twoShot,
+        populationPercent,
+        infectedPercent,
+        recoveryPercent,
+        deadPercent,
+        immunityPercent,
+        oneShotPercent,
+        twoShotPercent
+    });
 
+    return {
+        population: healthy, infected, recovery, dead, immunity, oneShot, twoShot
+    }
 }
+function getPercentDataSet() {
+    return {
+        populationPercent, infectedPercent, recoveryPercent, deadPercent, immunityPercent, oneShotPercent, twoShotPercent
+    }
+}
+
+
+
 
 
 
 function main() {
 
+
     setBounds()
-    setElementAttribute()
+    setInputAttribute()
+    setAttribute()
+    setPercentAttribute()
 
     initializeAllDots();
-    createDots();
+    setTimeout(() => {
+        createDots();
+    }, 2000);
 
 
     document.getElementById("canvas").addEventListener("resize", setBounds())

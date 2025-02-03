@@ -1,6 +1,6 @@
 var barChart;
 
-const createGraph = (initialData) => {
+const createBarGraph = (initialData) => {
 
 	console.log("create graph");
 	console.log(initialData);
@@ -43,7 +43,6 @@ const createGraph = (initialData) => {
 			y: {
 				beginAtZero: true,
 				title: { display: true, text: 'Values' },
-				max: initialData.population 
 			}
 		},
 		animation: {
@@ -87,7 +86,7 @@ const createGraph = (initialData) => {
 
 }
 
-const updateGraph = (dayData) => {
+const updateBarGraph = (dayData) => {
 
 	barChart.data.datasets[0].data = [
 		dayData.population,
