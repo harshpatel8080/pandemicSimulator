@@ -5,7 +5,7 @@ var MAXY = 0;
 const CHANGEPOSITION = 5;
 const WEEKS = 52;
 const CURETIME = 14;
-const TIME = 100;
+const TIME = 1000;
 
 var totalPopulation = 5000;
 var immunityPercent = 20;
@@ -24,9 +24,6 @@ var deadPercent = 0
 var populationPercent = 100
 var dead = 0;
 let initPopulation = totalPopulation
-
-
-var temp = []
 
 const dots = [];
 
@@ -200,7 +197,7 @@ function updateColor(dotElement, dot) {
             break;
         default:
             dotElement.style.backgroundColor = "rgb(109, 209, 255)"; // Healthy
-            dotElement.style.scale = "2"
+            dotElement.style.scale = "1"
     }
 }
 
@@ -233,6 +230,10 @@ function updateSimulation() {
                 if (dots[i].status != "dead" && dots[j].status != "dead") {
                     if ((dots[i].status == "infected" && dots[j].status == "healthy") || (dots[i].status == "healthy" && dots[j].status == "infected")) {
                         let targetDot = dots[i].status === "infected" ? dots[j] : dots[i];
+
+                        console.log(dots[i] + " " + dots[j]);
+                        console.log(dotElements[i] + " " + dotElements[j]);
+
 
                         let chance = 100;
                         if (targetDot.status === "recovery") chance -= 40
@@ -288,26 +289,12 @@ function updateSimulation() {
     }
 }
 
-let i = 1
+
 function getDatasetData() {
 
-    temp.push({
-        day: i++,
-        population: healthy,
-        infected,
-        recovery,
-        dead,
-        immunity,
-        oneShot,
-        twoShot,
-        populationPercent,
-        infectedPercent,
-        recoveryPercent,
-        deadPercent,
-        immunityPercent,
-        oneShotPercent,
-        twoShotPercent
-    });
+    if (healthy + dead + infected + recovery > initPopulation) {
+        healthy = initPopulation - (dead + infected + recovery)
+    }
 
     return {
         population: healthy, infected, recovery, dead, immunity, oneShot, twoShot

@@ -39,8 +39,7 @@
     <div id="canvas"></div>
     <canvas id="barChart" class="bars"></canvas>
     <canvas id="lineChart"></canvas>
-    <canvas id="doughnutChart"></canvas>    
-    <canvas id="radarChart"></canvas>
+    <canvas id="doughnutChart"></canvas>
 
     <button onclick="start()">Start</button>
     <button onclick="stop()">Stop</button>
@@ -165,7 +164,6 @@
     <script src="barGraph.js"></script>
     <script src="lineGraph.js"></script>
     <script src="pieChart.js"></script>
-    <script src="radarChart.js"></script>
     <script>
         var id;
         var day = 1;
@@ -190,7 +188,7 @@
                         stop()
                         console.log("Interval has been cleared.");
                         console.log(temp);
-                        
+
                     }
 
                     updateSimulation();
@@ -203,7 +201,6 @@
                     updateBarGraph(dataForDays);
                     updateLineChart(dataForDays, day);
                     updatePieChart(getPercentDataSet())
-                    updateRadarChart(getPercentDataSet())
 
 
                     day++;
@@ -218,7 +215,6 @@
             createBarGraph(getDatasetData())
             createLineChart(getDatasetData())
             createPieChart(getPercentDataSet());
-            createRadarChart(getPercentDataSet())
         }, 2000);
 
     </script>
