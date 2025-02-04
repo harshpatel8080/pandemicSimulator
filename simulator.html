@@ -7,156 +7,166 @@
     <title>Pandemic Simulator</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        #canvas {
-            height: 50vh;
-            width: 50vw;
-            border: 1px solid rgba(70, 70, 70, 0.226);
-        }
-
-        .dot {
-            height: 6px;
-            width: 6px;
-            border: 1px solid rgb(128, 128, 128);
-            border-radius: 50%;
-            position: absolute;
-
-        }
-    </style>
+    <link rel="stylesheet" href="simulator.css">
 </head>
 
 <body onload="main()">
-    <a href="input.html">&larr; Back</a>
-    <h1>Pandemic Simulator</h1>
+    <nav>
+        <h1>Pandemic Simulator</h1>
 
-    <p id="info" class="text">Day 1</p>
-    <div id="canvas"></div>
-    <canvas id="barChart" class="bars"></canvas>
-    <canvas id="lineChart"></canvas>
-    <canvas id="doughnutChart"></canvas>
-
-    <button onclick="start()">Start</button>
-    <button onclick="stop()">Stop</button>
-    <button onclick="pause()">Pause</button>
+        <a href="input.html">&larr; Back</a>
+        <p id="info" class="text">Day 1</p>
 
 
-    <table>
-        <thead>
-            <tr>
-                <th></th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Population</td>
-                <td id="population" title="Total population"></td>
-            </tr>
-            <tr>
-                <td>Recovery</td>
-                <td id="recovery" title="Number of recovered individuals"></td>
-            </tr>
-            <tr>
-                <td>Infected</td>
-                <td id="infected" title="Number of infected individuals"></td>
-            </tr>
-            <tr>
-                <td>Immunity</td>
-                <td id="immunity" title="Number of immune individuals"></td>
-            </tr>
-            <tr>
-                <td>One Shot</td>
-                <td id="oneShot" title="Number of individuals with one vaccine shot"></td>
-            </tr>
-            <tr>
-                <td>Two Shot</td>
-                <td id="twoShot" title="Number of individuals with two vaccine shots"></td>
-            </tr>
-            <tr>
-                <td>Dead</td>
-                <td id="dead" title="Number of individuals that has died"></td>
-            </tr>
-        </tbody>
-    </table>
-    <table>
-        <thead>
-            <tr>
-                <th></th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Population</td>
-                <td id="populationPercent" title="Percentage of total population"></td>
-            </tr>
-            <tr>
-                <td>Immunity %</td>
-                <td id="immunityPercent" title="Percentage of immune individuals"></td>
-            </tr>
-            <tr>
-                <td>One Shot %</td>
-                <td id="oneShotPercent" title="Percentage of individuals with one vaccine shot"></td>
-            </tr>
-            <tr>
-                <td>Two Shot %</td>
-                <td id="twoShotPercent" title="Percentage of individuals with two vaccine shots"></td>
-            </tr>
-            <tr>
-                <td>Recovery %</td>
-                <td id="recoveryPercent" title="Percentage of recovered individuals"></td>
-            </tr>
-            <tr>
-                <td>Infected %</td>
-                <td id="infectedPercent" title="Percentage of infected individuals"></td>
-            </tr>
-            <tr>
-                <td>Dead %</td>
-                <td id="deadPercent" title="Percentage of dead individuals"></td>
-            </tr>
-        </tbody>
-    </table>
+    </nav>
+    <span>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Input</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Population</td>
-                <td id="populationInput" title="Input population value"></td>
-            </tr>
-            <tr>
-                <td>Immunity %</td>
-                <td id="immunityInput" title="Input immunity percentage"></td>
-            </tr>
-            <tr>
-                <td>One Shot %</td>
-                <td id="oneShotInput" title="Input one shot percentage"></td>
-            </tr>
-            <tr>
-                <td>Two Shot %</td>
-                <td id="twoShotInput" title="Input two shot percentage"></td>
-            </tr>
-            <tr>
-                <td>Recovery %</td>
-                <td id="recoveryInput" title="Input recovery percentage"></td>
-            </tr>
-            <tr>
-                <td>Infected %</td>
-                <td id="infectedInput" title="Input infected percentage"></td>
-            </tr>
-        </tbody>
-    </table>
+        <button onclick="start()">Start</button>
+        <button onclick="stop()">Stop</button>
+        <button onclick="pause()">Pause</button>
+    </span>
+
+    <span>
+        <div id="canvas"></div>
+    </span>
+
+    <span>
+        <p>Pandemic Spread Visualization</p>
+        <canvas id="barChart" class="bars"></canvas>
+    </span>
+    <span>
+
+        <p>Attribute Values Summary</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Healthy Population</td>
+                    <td id="population" title="Total population"></td>
+                </tr>
+                <tr>
+                    <td>Recovery</td>
+                    <td id="recovery" title="Number of recovered individuals"></td>
+                </tr>
+                <tr>
+                    <td>Infected</td>
+                    <td id="infected" title="Number of infected individuals"></td>
+                </tr>
+                <tr>
+                    <td>Immunity</td>
+                    <td id="immunity" title="Number of immune individuals"></td>
+                </tr>
+                <tr>
+                    <td>One Shot</td>
+                    <td id="oneShot" title="Number of individuals with one vaccine shot"></td>
+                </tr>
+                <tr>
+                    <td>Two Shot</td>
+                    <td id="twoShot" title="Number of individuals with two vaccine shots"></td>
+                </tr>
+                <tr>
+                    <td>Dead</td>
+                    <td id="dead" title="Number of individuals that has died"></td>
+                </tr>
+            </tbody>
+        </table>
+    </span>
+    <span>
+        <p>Trend Analysis (Line Graph)</p>
+        <canvas id="lineChart"></canvas>
+    </span>
+
+
+    <span>
+        <p>Attribute Distribution (Pie Chart)</p>
+        <canvas id="doughnutChart" style="width: 25%;"></canvas>
+    </span>
+    <span>
+
+        <p>Percentage Breakdown of Attributes</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Healthy Population Percent</td>
+                    <td id="populationPercent" title="Percentage of total population"></td>
+                </tr>
+                <tr>
+                    <td>Immunity Percent</td>
+                    <td id="immunityPercent" title="Percentage of immune individuals"></td>
+                </tr>
+                <tr>
+                    <td>One Shot Percent</td>
+                    <td id="oneShotPercent" title="Percentage of individuals with one vaccine shot"></td>
+                </tr>
+                <tr>
+                    <td>Two Shot Percent</td>
+                    <td id="twoShotPercent" title="Percentage of individuals with two vaccine shots"></td>
+                </tr>
+                <tr>
+                    <td>Recovery Percent</td>
+                    <td id="recoveryPercent" title="Percentage of recovered individuals"></td>
+                </tr>
+                <tr>
+                    <td>Infected Percent</td>
+                    <td id="infectedPercent" title="Percentage of infected individuals"></td>
+                </tr>
+                <tr>
+                    <td>Dead Percent</td>
+                    <td id="deadPercent" title="Percentage of dead individuals"></td>
+                </tr>
+            </tbody>
+        </table>
+    </span>
+
+    <span>
+
+        <p>Simulation Input Parameters</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Input</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Initial Population</td>
+                    <td id="populationInput" title="Input population value"></td>
+                </tr>
+                <tr>
+                    <td>Immunity Percent</td>
+                    <td id="immunityInput" title="Input immunity percentage"></td>
+                </tr>
+                <tr>
+                    <td>One Shot Percent</td>
+                    <td id="oneShotInput" title="Input one shot percentage"></td>
+                </tr>
+                <tr>
+                    <td>Two Shot Percent</td>
+                    <td id="twoShotInput" title="Input two shot percentage"></td>
+                </tr>
+                <tr>
+                    <td>Recovery Percent</td>
+                    <td id="recoveryInput" title="Input recovery percentage"></td>
+                </tr>
+                <tr>
+                    <td>Infected Percent</td>
+                    <td id="infectedInput" title="Input infected percentage"></td>
+                </tr>
+            </tbody>
+        </table>
+    </span>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
@@ -172,6 +182,7 @@
         function stop() {
             clearInterval(id);
             isStart = false;
+            sendToSession()
         }
 
         function pause() {
@@ -196,12 +207,21 @@
                     setAttribute()
                     const dataForDays = getDatasetData();
 
+                    if (dataForDays == null) {
+                        stop();
+                        return;
+                    }
 
                     document.getElementById("info").innerHTML = "Day " + day;
                     updateBarGraph(dataForDays);
                     updateLineChart(dataForDays, day);
                     updatePieChart(getPercentDataSet())
+                    maxMinCases(day)
 
+
+                    window.addEventListener("resize", () => {
+                        window.location.reload()
+                    })
 
                     day++;
                 }, TIME);
@@ -209,13 +229,11 @@
         }
 
 
-        setTimeout(() => {
+        start();
+        createBarGraph(getDatasetData())
+        createLineChart(getDatasetData())
+        createPieChart(getPercentDataSet());
 
-            start();
-            createBarGraph(getDatasetData())
-            createLineChart(getDatasetData())
-            createPieChart(getPercentDataSet());
-        }, 2000);
 
     </script>
 </body>

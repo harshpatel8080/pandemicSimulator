@@ -6,6 +6,7 @@ const CHANGEPOSITION = 5;
 const WEEKS = 52;
 const CURETIME = 14;
 const TIME = 1000;
+var day = 0;
 
 var totalPopulation = 5000;
 var immunityPercent = 20;
@@ -35,7 +36,7 @@ class DotBean {
         this.immunity = false;
         this.oneShot = false;
         this.twoShot = false;
-        this.status = "healthy"; // "healthy", "infected", "recovery", "dead"
+        this.status = "healthy";
         this.infectedDuration = 0;
     }
 
@@ -61,11 +62,11 @@ function setBounds() {
 }
 function setInputAttribute() {
     document.getElementById("populationInput").innerHTML = healthy;
-    document.getElementById("immunityInput").innerHTML = immunityPercent;
-    document.getElementById("infectedInput").innerHTML = infectedPercent;
-    document.getElementById("oneShotInput").innerHTML = oneShotPercent;
-    document.getElementById("twoShotInput").innerHTML = twoShotPercent;
-    document.getElementById("recoveryInput").innerHTML = recoveryPercent;
+    document.getElementById("immunityInput").innerHTML = immunityPercent + "%";
+    document.getElementById("infectedInput").innerHTML = infectedPercent + "%";
+    document.getElementById("oneShotInput").innerHTML = oneShotPercent + "%";
+    document.getElementById("twoShotInput").innerHTML = twoShotPercent + "%";
+    document.getElementById("recoveryInput").innerHTML = recoveryPercent + "%";
 }
 
 function setAttribute() {
@@ -79,13 +80,13 @@ function setAttribute() {
 }
 
 function setPercentAttribute() {
-    document.getElementById("populationPercent").innerHTML = populationPercent;
-    document.getElementById("infectedPercent").innerHTML = infectedPercent;
-    document.getElementById("recoveryPercent").innerHTML = recoveryPercent;
-    document.getElementById("deadPercent").innerHTML = deadPercent;
-    document.getElementById("immunityPercent").innerHTML = immunityPercent;
-    document.getElementById("oneShotPercent").innerHTML = oneShotPercent;
-    document.getElementById("twoShotPercent").innerHTML = twoShotPercent;
+    document.getElementById("populationPercent").innerHTML = populationPercent + "%";
+    document.getElementById("infectedPercent").innerHTML = infectedPercent + "%";
+    document.getElementById("recoveryPercent").innerHTML = recoveryPercent + "%";
+    document.getElementById("deadPercent").innerHTML = deadPercent + "%";
+    document.getElementById("immunityPercent").innerHTML = immunityPercent + "%";
+    document.getElementById("oneShotPercent").innerHTML = oneShotPercent + "%";
+    document.getElementById("twoShotPercent").innerHTML = twoShotPercent + "%";
 
     populationPercent = (healthy / initPopulation * 100).toFixed(2);
     infectedPercent = (infected / initPopulation * 100).toFixed(2);
@@ -117,7 +118,6 @@ function updatePosition(dot) {
     dot.x += Math.floor(Math.random() * CHANGEPOSITION * 2 - CHANGEPOSITION);
     dot.y += Math.floor(Math.random() * CHANGEPOSITION * 2 - CHANGEPOSITION);
 
-    // Ensure x stays within bounds
     dot.x = Math.max(MINX + CHANGEPOSITION, Math.min(dot.x, MAXX - CHANGEPOSITION));
     dot.y = Math.max(MINY + CHANGEPOSITION, Math.min(dot.y, MAXY - CHANGEPOSITION));
 }
@@ -186,19 +186,29 @@ function updateColor(dotElement, dot) {
         case "dead":
             dotElement.style.backgroundColor = "black";
             dotElement.style.scale = "1.1"
+            dotElement.className = "dot dead"
             break;
         case "recovery":
             dotElement.style.backgroundColor = "rgb(0, 255, 0)";
             dotElement.style.scale = "1.2"
+            dotElement.className = "dot recovery"
             break;
         case "infected":
             dotElement.style.backgroundColor = "red";
             dotElement.style.scale = "1.5"
+            dotElement.className = "dot infected"
             break;
         default:
             dotElement.style.backgroundColor = "rgb(109, 209, 255)"; // Healthy
             dotElement.style.scale = "1"
+            dotElement.className = "dot healthy"
     }
+}
+function updateAttributes() {
+    infected = document.getElementsByClassName("dot infected").length
+    dead = document.getElementsByClassName("dot dead").length
+    healthy = document.getElementsByClassName("dot healthy").length
+    recovery = document.getElementsByClassName("dot recovery").length
 }
 
 function createDots() {
@@ -216,24 +226,24 @@ function overlap(dot1, dot2) {
     return Math.abs(dot1.x - dot2.x) < 3 && Math.abs(dot1.y - dot2.y) < 3;
 }
 
+
+var infecedNumber = {}
+var infectionRate = [] 
+
 function updateSimulation() {
     const dotElements = document.getElementsByClassName("dot");
     for (const dot of dots) {
         updatePosition(dot);
     }
 
-
-
     for (let i = 0; i < dots.length; i++) {
         for (let j = i + 1; j < dots.length; j++) {
             if (overlap(dots[i], dots[j])) {
                 if (dots[i].status != "dead" && dots[j].status != "dead") {
                     if ((dots[i].status == "infected" && dots[j].status == "healthy") || (dots[i].status == "healthy" && dots[j].status == "infected")) {
+
                         let targetDot = dots[i].status === "infected" ? dots[j] : dots[i];
-
-                        console.log(dots[i] + " " + dots[j]);
-                        console.log(dotElements[i] + " " + dotElements[j]);
-
+                        let tempIndex = dots[i].status === "infected" ? j : i;
 
                         let chance = 100;
                         if (targetDot.status === "recovery") chance -= 40
@@ -243,14 +253,9 @@ function updateSimulation() {
 
 
                         if (Math.random() * 100 < chance) {
-                            if (targetDot.status === "recovery") {
-                                recovery--;
-                            } else if (targetDot.status == "healthy") {
-                                healthy--
-                            }
-                            targetDot.status = "infected";
-                            infected++;
+                            infecedNumber[tempIndex] = (infecedNumber.hasOwnProperty(tempIndex) ? infecedNumber[tempIndex] : 0) + 1
 
+                            targetDot.status = "infected";
                         }
                     }
                 }
@@ -271,10 +276,8 @@ function updateSimulation() {
                     if (dot.immunity) {
                         immunity--;
                     }
-                    dead++;
                 } else {
                     dot.status = "recovery";
-                    recovery++;
                 }
                 infected--;
                 dot.infectedDuration = 0;
@@ -283,17 +286,43 @@ function updateSimulation() {
             }
         }
         updateColor(dotElements[i], dot);
+        updateAttributes()
         if (dot.status !== "dead") {
             placeDot(dotElements[i], dot);
         }
     }
 }
 
+var maxInfected = { infected, day: 0, population: healthy, dead: dead }
+var minInfected = { infected, day: 0, population: healthy, dead: dead }
+function maxMinCases(day) {
+    if (maxInfected.infected < infected) {
+        maxInfected.infected = infected
+        maxInfected.day = day
+        maxInfected.dead = dead
+        maxInfected.population = healthy
+    }
+    if (minInfected.infected > infected) {
+        minInfected.infected = infected
+        minInfected.day = day
+        minInfected.dead = dead
+        minInfected.population = healthy
+    }
+}
+function sendToSession() {
+
+    console.log(maxInfected);
+    console.log(minInfected);
+    console.log(infecedNumber);
+
+}
+
+
 
 function getDatasetData() {
 
-    if (healthy + dead + infected + recovery > initPopulation) {
-        healthy = initPopulation - (dead + infected + recovery)
+    if (healthy == 0 || infected == 0) {
+        return null
     }
 
     return {
@@ -308,24 +337,20 @@ function getPercentDataSet() {
 
 
 
-
-
-
 function main() {
 
 
-    setBounds()
-    setInputAttribute()
-    setAttribute()
-    setPercentAttribute()
+    window.scrollTo(0, 0);
 
-    initializeAllDots();
     setTimeout(() => {
+        setBounds()
+        setInputAttribute()
+        setAttribute()
+        setPercentAttribute()
+
+        initializeAllDots();
         createDots();
-    }, 2000);
 
-
-    document.getElementById("canvas").addEventListener("resize", setBounds())
-
+    }, TIME);
 
 }
