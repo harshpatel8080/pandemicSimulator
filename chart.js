@@ -13,14 +13,14 @@ var immunityPercent = 20;
 var oneShotPercent = 10;
 var twoShotPercent = 5;
 var recoveryPercent = 10;
-var infectedPercent = 5;
+var infectedPercent;
 
-var healthy = totalPopulation - Math.floor(totalPopulation * infectedPercent / 100);
-var immunity = Math.floor(totalPopulation * immunityPercent / 100);
-var oneShot = Math.floor(totalPopulation * oneShotPercent / 100);
-var twoShot = Math.floor(totalPopulation * twoShotPercent / 100);
-var recovery = Math.floor(totalPopulation * recoveryPercent / 100);
-var infected = Math.floor(totalPopulation * infectedPercent / 100);
+var healthy;
+var immunity;
+var oneShot;
+var twoShot;
+var recovery;
+var infected;
 var deadPercent = 0
 var populationPercent = 100
 var dead = 0;
@@ -61,7 +61,7 @@ function setBounds() {
 
 }
 function setInputAttribute() {
-    document.getElementById("populationInput").innerHTML = healthy;
+    document.getElementById("populationInput").innerHTML = totalPopulation;
     document.getElementById("immunityInput").innerHTML = immunityPercent + "%";
     document.getElementById("infectedInput").innerHTML = infectedPercent + "%";
     document.getElementById("oneShotInput").innerHTML = oneShotPercent + "%";
@@ -80,13 +80,6 @@ function setAttribute() {
 }
 
 function setPercentAttribute() {
-    document.getElementById("populationPercent").innerHTML = populationPercent + "%";
-    document.getElementById("infectedPercent").innerHTML = infectedPercent + "%";
-    document.getElementById("recoveryPercent").innerHTML = recoveryPercent + "%";
-    document.getElementById("deadPercent").innerHTML = deadPercent + "%";
-    document.getElementById("immunityPercent").innerHTML = immunityPercent + "%";
-    document.getElementById("oneShotPercent").innerHTML = oneShotPercent + "%";
-    document.getElementById("twoShotPercent").innerHTML = twoShotPercent + "%";
 
     populationPercent = (healthy / initPopulation * 100).toFixed(2);
     infectedPercent = (infected / initPopulation * 100).toFixed(2);
@@ -95,18 +88,35 @@ function setPercentAttribute() {
     immunityPercent = (immunity / initPopulation * 100).toFixed(2);
     oneShotPercent = (oneShot / initPopulation * 100).toFixed(2);
     twoShotPercent = (twoShot / initPopulation * 100).toFixed(2);
+
+    document.getElementById("populationPercent").innerHTML = populationPercent + "%";
+    document.getElementById("infectedPercent").innerHTML = infectedPercent + "%";
+    document.getElementById("recoveryPercent").innerHTML = recoveryPercent + "%";
+    document.getElementById("deadPercent").innerHTML = deadPercent + "%";
+    document.getElementById("immunityPercent").innerHTML = immunityPercent + "%";
+    document.getElementById("oneShotPercent").innerHTML = oneShotPercent + "%";
+    document.getElementById("twoShotPercent").innerHTML = twoShotPercent + "%";
 }
 
 function setValues() {
 
-    let values = localStorage.getItem("attributes")
+    let values = JSON.parse(localStorage.getItem("attributes"))
 
-    population = values.population
+    totalPopulation = values.population
     infectedPercent = values.infectedPercent
     immunityPercent = values.immunityPercent
     oneShotPercent = values.oneShotPercent
     twoShotPercent = values.twoShotPercent
     recoveryPercent = values.recoveryPercent
+
+    healthy = totalPopulation - Math.floor(totalPopulation * infectedPercent / 100);
+    immunity = Math.floor(totalPopulation * immunityPercent / 100);
+    oneShot = Math.floor(totalPopulation * oneShotPercent / 100);
+    twoShot = Math.floor(totalPopulation * twoShotPercent / 100);
+    recovery = Math.floor(totalPopulation * recoveryPercent / 100);
+    infected = Math.floor(totalPopulation * infectedPercent / 100);
+
+
 }
 
 function initializeXY(dot) {
@@ -228,7 +238,8 @@ function overlap(dot1, dot2) {
 
 
 var infecedNumber = {}
-var infectionRate = [] 
+var infectionRate = []
+var avgInfectionRate = 0;
 
 function updateSimulation() {
     const dotElements = document.getElementsByClassName("dot");
@@ -253,8 +264,7 @@ function updateSimulation() {
 
 
                         if (Math.random() * 100 < chance) {
-                            infecedNumber[tempIndex] = (infecedNumber.hasOwnProperty(tempIndex) ? infecedNumber[tempIndex] : 0) + 1
-
+                            infecedNumber[tempIndex] = (infecedNumber.hasOwnProperty(tempIndex) ? infecedNumber[tempIndex] : 0) + 1;
                             targetDot.status = "infected";
                         }
                     }
@@ -285,12 +295,16 @@ function updateSimulation() {
                 dot.infectedDuration++;
             }
         }
+        let initialInfected = infected
         updateColor(dotElements[i], dot);
         updateAttributes()
+        infectionRate.push(infected - initialInfected > 0 ? infected - initialInfected : 0)
+        avgInfectionRate += infectionRate[day]
         if (dot.status !== "dead") {
             placeDot(dotElements[i], dot);
         }
     }
+    day++;
 }
 
 var maxInfected = { infected, day: 0, population: healthy, dead: dead }
@@ -311,10 +325,21 @@ function maxMinCases(day) {
 }
 function sendToSession() {
 
+    let avgInfectedNumber = 0;
+    for (const i in infecedNumber) {
+        avgInfectedNumber += infecedNumber[i]
+    }
+    avgInfectedNumber /= Object.keys(infecedNumber).length
+
+    avgInfectionRate /= infectionRate.length
     console.log(maxInfected);
     console.log(minInfected);
     console.log(infecedNumber);
 
+
+    console.log(avgInfectedNumber);
+    console.log(infectionRate);
+    console.log(avgInfectionRate);
 }
 
 
@@ -341,12 +366,13 @@ function main() {
 
 
     window.scrollTo(0, 0);
+    setValues()
+    setInputAttribute()
 
     setTimeout(() => {
         setBounds()
-        setInputAttribute()
-        setAttribute()
         setPercentAttribute()
+        setAttribute()
 
         initializeAllDots();
         createDots();
