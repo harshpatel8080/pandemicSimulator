@@ -4,174 +4,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandemic Simulator</title>
+    <title>Pandemic Simulator Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="simulator.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
+<style>
+    /* Theme Colors */
+    :root {
+        --primary-bg: #155E95;
+        --secondary-bg: #6A80B9;
+        --accent-color: #F6C794;
+        --highlight-color: #FFF6B3;
+        --text-color: #e0f7fa;
+    }
+
+    /* Background & Text */
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(to bottom right, var(--primary-bg), #1B1F3B, var(--secondary-bg));
+        color: var(--text-color);
+        margin: 0;
+        padding: 20px;
+    }
+
+    /* Navbar with Gradient */
+    .navbar {
+        background: linear-gradient(90deg, var(--secondary-bg), var(--primary-bg));
+        padding: 10px;
+    }
+
+    .navbar-brand {
+        color: var(--highlight-color) !important;
+        font-weight: bold;
+    }
+
+    /* Dashboard Layout */
+    .dashboard {
+        padding: 20px;
+    }
+
+    /* Cards with Solid Background */
+    .card {
+        background-color: rgba(0, 0, 0, 0.6);
+        /* Dark semi-transparent */
+        color: var(--text-color);
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Card Headers */
+    .card-header {
+        background-color: var(--secondary-bg);
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        border-radius: 10px 10px 0 0;
+    }
+
+    /* Buttons */
+    .btn-custom {
+        background-color: var(--accent-color);
+        color: black;
+        margin: 5px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .btn-custom:hover {
+        background-color: var(--highlight-color);
+    }
+
+    /* Chart Background */
+    canvas {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 0 0 5px 5px;
+    }
+
+    .dot {
+        height: 5px;
+        width: 5px;
+        border: 1px solid #34495e;
+        border-radius: 50%;
+        position: absolute;
+        margin: -100px -555px;
+    }
+
+    #canvas {
+        height: 70vh;
+        width: 100%;
+        /* border: 2px solid #bdc3c7; */
+    }
+
+    /* Bar graph - increase size */
+    #barChart {
+        height: 10vh;
+        /* Increase height of bar chart */
+        width: 100%;
+    }
+</style>
 
 <body onload="main()">
-    <nav>
-        <h1>Pandemic Simulator</h1>
-
-        <a href="input.html">&larr; Back</a>
-        <p id="info" class="text">Day 1</p>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Pandemic Simulator Dashboard</a>
+            <a href="input.html" class="btn ms-auto" style="color: #F6C794;" onclick="updateMatrix()">Update Matrix</a>
+        </div>
     </nav>
-    <span>
-
-        <button onclick="start()">Start</button>
-        <button onclick="stop()">Stop</button>
-        <button onclick="pause()">Pause</button>
-    </span>
-
-    <span>
-        <div id="canvas"></div>
-    </span>
-
-    <span>
-        <p>Pandemic Spread Visualization</p>
-        <canvas id="barChart" class="bars"></canvas>
-    </span>
-    <span>
-
-        <p>Attribute Values Summary</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Attribute</th>
-                    <th>Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Healthy Population</td>
-                    <td id="population" title="Total population"></td>
-                </tr>
-                <tr>
-                    <td>Recovery</td>
-                    <td id="recovery" title="Number of recovered individuals"></td>
-                </tr>
-                <tr>
-                    <td>Infected</td>
-                    <td id="infected" title="Number of infected individuals"></td>
-                </tr>
-                <tr>
-                    <td>Immunity</td>
-                    <td id="immunity" title="Number of immune individuals"></td>
-                </tr>
-                <tr>
-                    <td>One Shot</td>
-                    <td id="oneShot" title="Number of individuals with one vaccine shot"></td>
-                </tr>
-                <tr>
-                    <td>Two Shot</td>
-                    <td id="twoShot" title="Number of individuals with two vaccine shots"></td>
-                </tr>
-                <tr>
-                    <td>Dead</td>
-                    <td id="dead" title="Number of individuals that has died"></td>
-                </tr>
-            </tbody>
-        </table>
-    </span>
-    <span>
-        <p>Trend Analysis (Line Graph)</p>
-        <canvas id="lineChart"></canvas>
-    </span>
 
 
-    <span>
-        <p>Attribute Distribution (Pie Chart)</p>
-        <canvas id="doughnutChart" style="width: 25%;"></canvas>
-    </span>
-    <span>
+    <div class="container dashboard">
+        <div class="row">
+            <!-- Left Section: Controls & Stats -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">Simulation Controls</div>
+                    <div class="card-body text-center">
+                        <button class="btn btn-custom" onclick="start()">Start</button>
+                        <button class="btn btn-custom" onclick="pause()">Pause</button>
+                        <button class="btn btn-custom" onclick="stop()">Stop</button>
+                        <p id="info" class="mt-3">Day 1</p>
+                    </div>
+                </div>
 
-        <p>Percentage Breakdown of Attributes</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Attribute</th>
-                    <th>Percentage</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Healthy Population Percent</td>
-                    <td id="populationPercent" title="Percentage of total population"></td>
-                </tr>
-                <tr>
-                    <td>Immunity Percent</td>
-                    <td id="immunityPercent" title="Percentage of immune individuals"></td>
-                </tr>
-                <tr>
-                    <td>One Shot Percent</td>
-                    <td id="oneShotPercent" title="Percentage of individuals with one vaccine shot"></td>
-                </tr>
-                <tr>
-                    <td>Two Shot Percent</td>
-                    <td id="twoShotPercent" title="Percentage of individuals with two vaccine shots"></td>
-                </tr>
-                <tr>
-                    <td>Recovery Percent</td>
-                    <td id="recoveryPercent" title="Percentage of recovered individuals"></td>
-                </tr>
-                <tr>
-                    <td>Infected Percent</td>
-                    <td id="infectedPercent" title="Percentage of infected individuals"></td>
-                </tr>
-                <tr>
-                    <td>Dead Percent</td>
-                    <td id="deadPercent" title="Percentage of dead individuals"></td>
-                </tr>
-            </tbody>
-        </table>
-    </span>
+                <div class="card mb-4">
+                    <div class="card-header">Attribute Values Summary</div>
+                    <div class="card-body">
+                        <p>Healthy Population: <span id="population" title="Total population"></span></p>
+                        <p>Recovery: <span id="recovery" title="Number of recovered individuals"></span></p>
+                        <p>Infected: <span id="infected" title="Number of infected individuals"></span></p>
+                        <p>Immunity: <span id="immunity" title="Number of immune individuals"></span></p>
+                        <p>One Shot: <span id="oneShot" title="Number of individuals with one vaccine shot"></span></p>
+                        <p>Two Shot: <span id="twoShot" title="Number of individuals with two vaccine shots"></span></p>
+                        <p>Dead: <span id="dead" title="Number of individuals that have died"></span></p>
+                    </div>
+                </div>
 
-    <span>
 
-        <p>Simulation Input Parameters</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Input</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Initial Population</td>
-                    <td id="populationInput" title="Input population value"></td>
-                </tr>
-                <tr>
-                    <td>Immunity Percent</td>
-                    <td id="immunityInput" title="Input immunity percentage"></td>
-                </tr>
-                <tr>
-                    <td>One Shot Percent</td>
-                    <td id="oneShotInput" title="Input one shot percentage"></td>
-                </tr>
-                <tr>
-                    <td>Two Shot Percent</td>
-                    <td id="twoShotInput" title="Input two shot percentage"></td>
-                </tr>
-                <tr>
-                    <td>Recovery Percent</td>
-                    <td id="recoveryInput" title="Input recovery percentage"></td>
-                </tr>
-                <tr>
-                    <td>Infected Percent</td>
-                    <td id="infectedInput" title="Input infected percentage"></td>
-                </tr>
-            </tbody>
-        </table>
-    </span>
+                <div class="card">
+                    <div class="card-header">Percentage Breakdown of Attributes</div>
+                    <div class="card-body">
+                        <p>Healthy Population Percent: <span id="populationPercent"
+                                title="Percentage of total population"></span></p>
+                        <p>Immunity Percent: <span id="immunityPercent" title="Percentage of immune individuals"></span>
+                        </p>
+                        <p>One Shot Percent: <span id="oneShotPercent"
+                                title="Percentage of individuals with one vaccine shot"></span></p>
+                        <p>Two Shot Percent: <span id="twoShotPercent"
+                                title="Percentage of individuals with two vaccine shots"></span></p>
+                        <p>Recovery Percent: <span id="recoveryPercent"
+                                title="Percentage of recovered individuals"></span></p>
+                        <p>Infected Percent: <span id="infectedPercent"
+                                title="Percentage of infected individuals"></span></p>
+                        <p>Dead Percent: <span id="deadPercent" title="Percentage of dead individuals"></span></p>
+                    </div>
+                </div>
 
+                <div class="card" style="margin-top: 30px;">
+                    <div class="card-header">Simulation Input Parameters</div>
+                    <div class="card-body">
+                        <p>Initial Population: <span id="populationInput" title="Input population value"></span></p>
+                        <p>Immunity Percent: <span id="immunityInput" title="Input immunity percentage"></span></p>
+                        <p>One Shot Percent: <span id="oneShotInput" title="Input one shot percentage"></span></p>
+                        <p>Two Shot Percent: <span id="twoShotInput" title="Input two shot percentage"></span></p>
+                        <p>Recovery Percent: <span id="recoveryInput" title="Input recovery percentage"></span></p>
+                        <p>Infected Percent: <span id="infectedInput" title="Input infected percentage"></span></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Section: Charts & Visualization -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header">Simulation Area</div>
+                    <div class="card-body">
+                        <div id="canvas"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <!-- Added Heading -->
+                        <div class="card-header" style="border-radius: 5px 5px 0 0;">Bar Graph</div>
+                        <canvas id="barChart" style="height: 56vh;"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <!-- Swapped Positions: Doughnut Chart -->
+                        <div class="card-header" style="border-radius: 5px 5px 0 0;">Doughnut Chart</div>
+                        <canvas id="doughnutChart" style="padding: 20px; box-sizing: border-box;"></canvas>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <!-- Added Heading -->
+                    <div class="card-header" style="border-radius: 5px 5px 0 0;">Line Chart</div>
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="chart.js"></script>
     <script src="barGraph.js"></script>
     <script src="lineGraph.js"></script>
     <script src="pieChart.js"></script>
+
     <script>
         var id;
         var isStart = false;
@@ -180,6 +220,7 @@
             clearInterval(id);
             isStart = false;
             sendToSession()
+            window.location.href = "report.html"
         }
 
         function pause() {
@@ -199,9 +240,10 @@
 
                     }
 
-                    updateSimulation();
-                    setPercentAttribute()
+                    updatePage();
+
                     setAttribute()
+                    setPercentAttribute()
                     const dataForDays = getDatasetData();
 
                     if (dataForDays == null) {
@@ -215,22 +257,20 @@
                     updatePieChart(getPercentDataSet())
                     maxMinCases(day)
 
-
                     window.addEventListener("resize", () => {
-                        window.location.reload()
+                        window.location.reload();
                     })
 
                 }, TIME);
             }
         }
 
-
-        start();
-        createBarGraph(getDatasetData())
-        createLineChart(getDatasetData())
-        createPieChart(getPercentDataSet());
-
-
+        setTimeout(() => {
+            start();
+            createBarGraph(getDatasetData())
+            createLineChart(getDatasetData())
+            createPieChart(getPercentDataSet());
+        }, TIME);
     </script>
 </body>
 

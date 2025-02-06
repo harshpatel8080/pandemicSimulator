@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pandemic Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Define the new theme colors */
+        :root {
+            --primary-bg: #155E95;
+            /* Deep Blue */
+            --secondary-bg: #6A80B9;
+            /* Muted Blue */
+            --accent-color: #F6C794;
+            /* Warm Beige */
+            --highlight-color: #FFF6B3;
+            /* Soft Yellow */
+            --text-color: #222846;
+            /* White */
+        }
+
+
+
+        /* Apply a full-screen gradient background */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom right, var(--primary-bg), #1B1F3B, var(--secondary-bg));
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: var(--highlight-color);
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--secondary-bg), var(--accent-color));
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .stat-box h2 {
+            font-size: 1.2em;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pie-charts {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .chart-wrapper {
+            width: 180px;
+            height: 180px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary-bg), var(--accent-color));
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        #infectionChart {
+            width: 100%;
+            max-width: 1000px;
+            height: 400px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Pandemic Data Analysis Dashboard</h1>
+
+    <div class="dashboard-container">
+        <!-- Statistics Section -->
+        <div>
+            <h2>Pandemic Data Analysis</h2>
+            <div class="stats-section">
+                <div class="stat-box">
+                    <h2>Peak Infection Count</h2>
+                    <p id="maxInfected"></p>
+                </div>
+                <div class="stat-box">
+                    <h2>Lowest Infection Count</h2>
+                    <p id="minInfected"></p>
+                </div>
+                <div class="stat-box">
+                    <h2>Average Infection Rate</h2>
+                    <p id="avgInfectionRate"></p>
+                </div>
+                <div class="stat-box">
+                    <h2>Pandemic Duration</h2>
+                    <p id="pandemicDuration"></p>
+                </div>
+                <div class="stat-box">
+                    <h2>Mortality Rate (%)</h2>
+                    <p id="mortalityRate"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <h2>Survival Percentage Based on Immunization</h2>
+            <div class="pie-charts">
+                <div class="chart-wrapper"><canvas id="oneShotChart"></canvas></div>
+                <div class="chart-wrapper"><canvas id="twoShotChart"></canvas></div>
+                <div class="chart-wrapper"><canvas id="immunityChart"></canvas></div>
+            </div>
+
+            <h2>Daily Infection Progression</h2>
+            <canvas id="infectionChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let maxInfected = { infected: 1764, day: 16 };
+        let minInfected = { infected: 1, day: 113 };
+        let avgInfectionRate = 21.5;
+        let dailyInfection = [0, 0, 116, 86, 101, 97, 96];
+        let pandemicDuration = 120;
+        let avgMortalityRate = 6.48;
+        let oneShot = 50;
+        let twoShot = 75;
+        let immunity = 85;
+
+        const getSessionData = () => {
+
+            const data = JSON.parse(sessionStorage.getItem('simulationData'));
+
+            maxInfected = data.maxInfected;
+            minInfected = data.minInfected;
+            avgInfectionRate = data.avgInfectionRate;
+            dailyInfection = data.dailyInfection;
+            pandemicDuration = data.pandemicDuration;
+            avgMortalityRate = data.avgMortalityRate;
+            oneShot = data.oneShot;
+            twoShot = data.twoShot;
+            immunity = data.immunity;
+        }
+        getSessionData()
+
+        document.getElementById("maxInfected").innerText = `${maxInfected.infected} on day ${maxInfected.day}`;
+        document.getElementById("minInfected").innerText = `${minInfected.infected} on day ${minInfected.day}`;
+        document.getElementById("avgInfectionRate").innerText = avgInfectionRate + "%";
+        document.getElementById("pandemicDuration").innerText = pandemicDuration + " days";
+        document.getElementById("mortalityRate").innerText = avgMortalityRate.toFixed(2) + "%";
+
+        function createGradient(ctx) {
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--highlight-color').trim());
+            gradient.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim());
+            return gradient;
+        }
+
+        function createPieChart(canvasId, label, value) {
+            const ctx = document.getElementById(canvasId).getContext("2d");
+
+            // Get CSS variables for colors
+            const highlightColor = getComputedStyle(document.documentElement).getPropertyValue('--highlight-color').trim();
+            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('').trim(); // Border color
+
+            new Chart(ctx, {
+                type: "pie",
+                data: {
+                    labels: [label, "Others"],
+                    datasets: [{
+                        data: [value, 100 - value],
+                        backgroundColor: [highlightColor, accentColor],
+                        borderColor: textColor,  // Set border color to text color
+                        borderWidth: 0.3  // Add border width for better visibility
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { labels: { color: textColor, font: { size: 14 } } }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+
+        createPieChart("oneShotChart", "One Shot Survival", oneShot);
+        createPieChart("twoShotChart", "Two Shot Survival", twoShot);
+        createPieChart("immunityChart", "Immunity Survival", immunity);
+
+        const ctx = document.getElementById("infectionChart").getContext("2d");
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: dailyInfection.map((_, i) => `Day ${i + 1}`),
+                datasets: [{
+                    label: "Daily Infections",
+                    data: dailyInfection,
+                    borderColor: createGradient(ctx),
+                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        enabled: true,
+                        // backgroundColor: "rgba(0, 0, 0, 0.8)", // Dark background for contrast
+                        // borderColor: "#FFF6B3", // Border color matching the theme
+                        // borderWidth: 1,
+                        // titleFont: { size: 14, weight: 'bold' },
+                        // bodyFont: { size: 14 },
+                        // callbacks: {
+                        //     title: (tooltipItems) => `📅 ${tooltipItems[0].label}`, // Adds a calendar icon before the day
+                        //     label: (context) => `🦠 Infected: ${context.raw}` // Adds a virus emoji for style
+                        // }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>

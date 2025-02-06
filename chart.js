@@ -8,7 +8,7 @@ const CURETIME = 14;
 const TIME = 1000;
 var day = 0;
 
-var totalPopulation = 5000;
+var totalPopulation;
 var immunityPercent = 20;
 var oneShotPercent = 10;
 var twoShotPercent = 5;
@@ -24,7 +24,7 @@ var infected;
 var deadPercent = 0
 var populationPercent = 100
 var dead = 0;
-let initPopulation = totalPopulation
+let initPopulation
 
 const dots = [];
 
@@ -61,6 +61,8 @@ function setBounds() {
 
 }
 function setInputAttribute() {
+    console.log("input");
+
     document.getElementById("populationInput").innerHTML = totalPopulation;
     document.getElementById("immunityInput").innerHTML = immunityPercent + "%";
     document.getElementById("infectedInput").innerHTML = infectedPercent + "%";
@@ -70,6 +72,9 @@ function setInputAttribute() {
 }
 
 function setAttribute() {
+    console.log("attributes");
+    console.log(healthy);
+
     document.getElementById("population").innerHTML = Math.trunc(healthy);
     document.getElementById("immunity").innerHTML = immunity;
     document.getElementById("infected").innerHTML = infected;
@@ -80,6 +85,8 @@ function setAttribute() {
 }
 
 function setPercentAttribute() {
+    console.log("percent");
+
 
     populationPercent = (healthy / initPopulation * 100).toFixed(2);
     infectedPercent = (infected / initPopulation * 100).toFixed(2);
@@ -100,23 +107,22 @@ function setPercentAttribute() {
 
 function setValues() {
 
-    let values = JSON.parse(localStorage.getItem("attributes"))
+    let values = JSON.parse(sessionStorage.getItem("attributes"))
 
     totalPopulation = values.population
+    initPopulation = totalPopulation
     infectedPercent = values.infectedPercent
     immunityPercent = values.immunityPercent
     oneShotPercent = values.oneShotPercent
     twoShotPercent = values.twoShotPercent
     recoveryPercent = values.recoveryPercent
 
-    healthy = totalPopulation - Math.floor(totalPopulation * infectedPercent / 100);
     immunity = Math.floor(totalPopulation * immunityPercent / 100);
     oneShot = Math.floor(totalPopulation * oneShotPercent / 100);
     twoShot = Math.floor(totalPopulation * twoShotPercent / 100);
     recovery = Math.floor(totalPopulation * recoveryPercent / 100);
     infected = Math.floor(totalPopulation * infectedPercent / 100);
-
-
+    healthy = totalPopulation - infected - recovery;
 }
 
 function initializeXY(dot) {
@@ -194,30 +200,29 @@ function placeDot(dotElement, dot) {
 function updateColor(dotElement, dot) {
     switch (dot.status) {
         case "dead":
-            dotElement.style.backgroundColor = "black";
-            dotElement.style.scale = "1.1"
+            dotElement.style.backgroundColor = "rgb(78, 0, 141)";
             dotElement.className = "dot dead"
             break;
         case "recovery":
             dotElement.style.backgroundColor = "rgb(0, 255, 0)";
-            dotElement.style.scale = "1.2"
             dotElement.className = "dot recovery"
             break;
         case "infected":
             dotElement.style.backgroundColor = "red";
-            dotElement.style.scale = "1.5"
             dotElement.className = "dot infected"
             break;
         default:
             dotElement.style.backgroundColor = "rgb(109, 209, 255)"; // Healthy
-            dotElement.style.scale = "1"
             dotElement.className = "dot healthy"
     }
 }
 function updateAttributes() {
     infected = document.getElementsByClassName("dot infected").length
     dead = document.getElementsByClassName("dot dead").length
+    console.log("in update");
     healthy = document.getElementsByClassName("dot healthy").length
+    console.log(healthy);
+
     recovery = document.getElementsByClassName("dot recovery").length
 }
 
@@ -226,6 +231,7 @@ function createDots() {
     for (const dot of dots) {
         const dotElement = document.createElement("div");
         dotElement.className = "dot";
+        dotElement.style.scale = 1.5 - initPopulation / 5000;
         placeDot(dotElement, dot);
         updateColor(dotElement, dot);
         canvas.appendChild(dotElement);
@@ -238,8 +244,20 @@ function overlap(dot1, dot2) {
 
 
 var infecedNumber = {}
-var infectionRate = []
+var dailyInfection = []
 var avgInfectionRate = 0;
+var avgMortalityRate = 0;
+
+function updatePage() {
+    let initialInfected = infected
+
+    updateSimulation()
+
+    dailyInfection.push(infected - initialInfected > 0 ? infected - initialInfected : 0)
+    avgInfectionRate += dailyInfection[day]
+    avgMortalityRate += dead / (initPopulation - dead)
+    day++;
+}
 
 function updateSimulation() {
     const dotElements = document.getElementsByClassName("dot");
@@ -295,21 +313,19 @@ function updateSimulation() {
                 dot.infectedDuration++;
             }
         }
-        let initialInfected = infected
         updateColor(dotElements[i], dot);
         updateAttributes()
-        infectionRate.push(infected - initialInfected > 0 ? infected - initialInfected : 0)
-        avgInfectionRate += infectionRate[day]
+
         if (dot.status !== "dead") {
             placeDot(dotElements[i], dot);
         }
     }
-    day++;
 }
 
-var maxInfected = { infected, day: 0, population: healthy, dead: dead }
-var minInfected = { infected, day: 0, population: healthy, dead: dead }
+var maxInfected = { infected: 0, day: 0, population: healthy, dead: dead }
+var minInfected = { infected: 100000, day: 0, population: healthy, dead: dead }
 function maxMinCases(day) {
+
     if (maxInfected.infected < infected) {
         maxInfected.infected = infected
         maxInfected.day = day
@@ -330,16 +346,38 @@ function sendToSession() {
         avgInfectedNumber += infecedNumber[i]
     }
     avgInfectedNumber /= Object.keys(infecedNumber).length
+    avgInfectionRate = avgInfectionRate / initPopulation * 100
 
-    avgInfectionRate /= infectionRate.length
-    console.log(maxInfected);
-    console.log(minInfected);
-    console.log(infecedNumber);
+    avgMortalityRate /= day
 
 
-    console.log(avgInfectedNumber);
-    console.log(infectionRate);
-    console.log(avgInfectionRate);
+
+    console.log(maxInfected); // { infected: 0, day: 0, population: healthy, dead: dead }
+    console.log(minInfected); // { infected: 100000, day: 0, population: healthy, dead: dead }
+    console.log(avgInfectedNumber); // number of people on avg a person infected
+    console.log(dailyInfection); // graph [123,34,87,0,0,548]
+    console.log(avgInfectionRate); // 43%
+    console.log(day); // pandemic duration
+    console.log(avgMortalityRate * 100); // dead rate
+
+    console.log({ oneShot: oneShot / (document.getElementById("oneShotInput").innerHTML.replace('%', '') / 100 * initPopulation) * 100 }); // percent of one shot people that survived
+    console.log({ twoShot: twoShot / (document.getElementById("twoShotInput").innerHTML.replace('%', '') / 100 * initPopulation) * 100 }); // percent of two shot people that survived
+    console.log({ immunity: immunity / (document.getElementById("immunityInput").innerHTML.replace('%', '') / 100 * initPopulation) * 100 }); // percent of immunity people that survived
+
+    const simulationData = {
+        maxInfected,
+        minInfected,
+        avgInfectedNumber,
+        dailyInfection,
+        avgInfectionRate,
+        pandemicDuration: day,
+        avgMortalityRate: avgMortalityRate * 100,
+        oneShot: oneShot / (document.getElementById("oneShotInput").innerHTML.replace('%', '') / 100 * initPopulation) * 100,
+        twoShot: twoShot / (document.getElementById("twoShotInput").innerHTML.replace('%', '') / 100 * initPopulation) * 100,
+        immunity: immunity / (document.getElementById("immunityInput").innerHTML.replace('%', '') / 100 * initPopulation) * 100
+    };
+
+    sessionStorage.setItem("simulationData", JSON.stringify(simulationData));
 }
 
 
@@ -349,7 +387,6 @@ function getDatasetData() {
     if (healthy == 0 || infected == 0) {
         return null
     }
-
     return {
         population: healthy, infected, recovery, dead, immunity, oneShot, twoShot
     }
@@ -360,23 +397,22 @@ function getPercentDataSet() {
     }
 }
 
-
-
 function main() {
-
-
     window.scrollTo(0, 0);
     setValues()
+
+
+
+
     setInputAttribute()
 
     setTimeout(() => {
         setBounds()
-        setPercentAttribute()
         setAttribute()
+        setPercentAttribute()
 
         initializeAllDots();
         createDots();
 
     }, TIME);
-
 }

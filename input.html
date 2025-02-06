@@ -6,35 +6,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pandemic Simulator</title>
     <style>
+        /* Define Theme Colors */
+        :root {
+            --primary-bg: #155E95;
+            --secondary-bg: #6A80B9;
+            --accent-color: #F6C794;
+            --highlight-color: #FFF6B3;
+            --text-color: #222846;
+        }
+
+        /* Apply Full-Screen Gradient Background */
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            /* Dark gradient */
+            background: linear-gradient(to bottom right, var(--primary-bg), #1B1F3B, var(--secondary-bg));
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
-            overflow: hidden;
-            /* Hide overflow for floating particles */
             position: relative;
-            color: #e0e0e0;
-            /* Light text for dark background */
+            overflow: hidden;
+            min-height: 100vh;
         }
 
         .container {
             max-width: 600px;
             margin: auto;
-            background: rgba(30, 30, 30, 0.9);
-            /* Dark container with slight transparency */
+            margin-top: 60px;
+            background: linear-gradient(135deg, var(--secondary-bg), var(--accent-color));
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
             position: relative;
             z-index: 1;
+            scale: 1.1;
         }
 
         h1 {
             text-align: center;
-            color: #66fcf1;
-            /* Cool teal for header */
+            color: var(--highlight-color);
         }
 
         .form-group {
@@ -45,8 +53,7 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            color: #c5c6c7;
-            /* Slightly lighter for labels */
+            color: var(--text-color);
         }
 
         .slider-container {
@@ -60,8 +67,7 @@
             -webkit-appearance: none;
             appearance: none;
             height: 8px;
-            background: #45a29e;
-            /* Teal slider track */
+            background: var(--primary-bg);
             border-radius: 5px;
             outline: none;
         }
@@ -71,26 +77,23 @@
             appearance: none;
             width: 20px;
             height: 20px;
-            background: #66fcf1;
-            /* Bright thumb */
+            background: var(--highlight-color);
             border-radius: 50%;
             cursor: pointer;
-            border: 2px solid #1f2833;
+            border: 2px solid var(--secondary-bg);
         }
 
         .slider-value {
             width: 50px;
             text-align: right;
-            color: #66fcf1;
-            /* Matching text color for values */
+            color: var(--text-color);
         }
 
         .btn-primary {
             width: 100%;
             padding: 12px;
-            background-color: #45a29e;
-            /* Teal button */
-            color: #1f2833;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -100,46 +103,8 @@
         }
 
         .btn-primary:hover {
-            background-color: #66fcf1;
-            color: #0b0c10;
-        }
-
-        a {
-            text-decoration: none;
-            color: #66fcf1;
-            margin-bottom: 20px;
-            display: inline-block;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* Floating particles */
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.15);
-            /* Dimmer particles for dark mode */
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: float 8s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(0) scale(1);
-                opacity: 0.6;
-            }
-
-            50% {
-                transform: translateY(-50px) scale(1.2);
-                opacity: 0.3;
-            }
-
-            100% {
-                transform: translateY(0) scale(1);
-                opacity: 0.6;
-            }
+            background-color: var(--highlight-color);
+            color: var(--primary-bg);
         }
     </style>
 </head>
@@ -153,8 +118,8 @@
         <div class="form-group">
             <label>Population:</label>
             <div class="slider-container">
-                <input type="range" id="inputPopulation" class="slider" min="100" max="100000" value="5000">
-                <span id="populationValue" class="slider-value">50000</span>
+                <input type="range" id="inputPopulation" class="slider" min="100" max="10000" value="2000">
+                <span id="populationValue" class="slider-value">2000</span>
             </div>
         </div>
         <div class="form-group">
@@ -181,8 +146,8 @@
         <div class="form-group">
             <label>Recovery %:</label>
             <div class="slider-container">
-                <input type="range" id="inputRecovery" class="slider" min="0" max="100" value="70">
-                <span id="recoveryValue" class="slider-value">70%</span>
+                <input type="range" id="inputRecovery" class="slider" min="0" max="100" value="10">
+                <span id="recoveryValue" class="slider-value">10%</span>
             </div>
         </div>
         <div class="form-group">
@@ -225,32 +190,9 @@
                 infectedPercent: document.getElementById('inputInfected').value
             };
 
-            localStorage.setItem("attributes", JSON.stringify(value));
-            window.location.href = "simulator.html"; // Ensure sim.html exists
+            sessionStorage.setItem("attributes", JSON.stringify(value));
+            window.location.href = "simulator.html"; // Ensure simulator.html exists
         }
-
-        // Generate floating particles for the background
-        function createParticles() {
-            const numParticles = 30; // Adjust the number of particles
-            for (let i = 0; i < numParticles; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-
-                // Random size, position, and animation duration
-                const size = Math.random() * 8 + 4; // Particle size between 4px and 12px
-                particle.style.width = `${size} px`;
-                particle.style.height = `${size} px`;
-                particle.style.top = `${Math.random() * 100} vh`;
-                particle.style.left = `${Math.random() * 100} vw`;
-                particle.style.animationDuration = ` ${Math.random() * 5 + 5} s`; // Between 5s and 10s
-                particle.style.animationDelay = `${Math.random() * 5} s`;
-
-                document.body.appendChild(particle);
-            }
-        }
-
-        // Call the function to create particles
-        createParticles();
     </script>
 </body>
 
