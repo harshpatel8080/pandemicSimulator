@@ -3,7 +3,7 @@ var MAXX = 0;
 var MINY = 0;
 var MAXY = 0;
 const CHANGEPOSITION = 5;
-const WEEKS = 52;
+const WEEKS = 3;
 const CURETIME = 14;
 const TIME = 1000;
 var day = 0;
@@ -47,7 +47,6 @@ class DotBean {
 
 function setBounds() {
 
-    console.log("in set bound");
     const myDiv = document.getElementById("canvas");
     const rect = myDiv.getBoundingClientRect();
 
@@ -61,7 +60,6 @@ function setBounds() {
 
 }
 function setInputAttribute() {
-    console.log("input");
 
     document.getElementById("populationInput").innerHTML = totalPopulation;
     document.getElementById("immunityInput").innerHTML = immunityPercent + "%";
@@ -72,8 +70,7 @@ function setInputAttribute() {
 }
 
 function setAttribute() {
-    console.log("attributes");
-    console.log(healthy);
+
 
     document.getElementById("population").innerHTML = Math.trunc(healthy);
     document.getElementById("immunity").innerHTML = immunity;
@@ -85,8 +82,6 @@ function setAttribute() {
 }
 
 function setPercentAttribute() {
-    console.log("percent");
-
 
     populationPercent = (healthy / initPopulation * 100).toFixed(2);
     infectedPercent = (infected / initPopulation * 100).toFixed(2);
@@ -200,7 +195,7 @@ function placeDot(dotElement, dot) {
 function updateColor(dotElement, dot) {
     switch (dot.status) {
         case "dead":
-            dotElement.style.backgroundColor = "rgb(78, 0, 141)";
+            dotElement.style.backgroundColor = "#white";
             dotElement.className = "dot dead"
             break;
         case "recovery":
@@ -219,9 +214,7 @@ function updateColor(dotElement, dot) {
 function updateAttributes() {
     infected = document.getElementsByClassName("dot infected").length
     dead = document.getElementsByClassName("dot dead").length
-    console.log("in update");
     healthy = document.getElementsByClassName("dot healthy").length
-    console.log(healthy);
 
     recovery = document.getElementsByClassName("dot recovery").length
 }
@@ -356,8 +349,8 @@ function sendToSession() {
     console.log(minInfected); // { infected: 100000, day: 0, population: healthy, dead: dead }
     console.log(avgInfectedNumber); // number of people on avg a person infected
     console.log(dailyInfection); // graph [123,34,87,0,0,548]
-    console.log(avgInfectionRate); // 43%
-    console.log(day); // pandemic duration
+    console.log(avgInfectionRate.toFixed(2)); // 43%
+    console.log(day); // pandemic durations
     console.log(avgMortalityRate * 100); // dead rate
 
     console.log({ oneShot: oneShot / (document.getElementById("oneShotInput").innerHTML.replace('%', '') / 100 * initPopulation) * 100 }); // percent of one shot people that survived
@@ -369,7 +362,7 @@ function sendToSession() {
         minInfected,
         avgInfectedNumber,
         dailyInfection,
-        avgInfectionRate,
+        avgInfectionRate:avgInfectionRate.toFixed(2),
         pandemicDuration: day,
         avgMortalityRate: avgMortalityRate * 100,
         oneShot: oneShot / (document.getElementById("oneShotInput").innerHTML.replace('%', '') / 100 * initPopulation) * 100,
@@ -400,9 +393,6 @@ function getPercentDataSet() {
 function main() {
     window.scrollTo(0, 0);
     setValues()
-
-
-
 
     setInputAttribute()
 

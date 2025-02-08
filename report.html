@@ -152,8 +152,8 @@
                 <div class="chart-wrapper"><canvas id="immunityChart"></canvas></div>
             </div>
 
-            <h2>Daily Infection Progression</h2>
-            <canvas id="infectionChart"></canvas>
+            <h2>Daily New Infection Progression</h2>
+            <canvas id="infectionChart" style="z-index: 3;"></canvas>
         </div>
     </div>
 
@@ -231,13 +231,14 @@
         createPieChart("twoShotChart", "Two Shot Survival", twoShot);
         createPieChart("immunityChart", "Immunity Survival", immunity);
 
+
         const ctx = document.getElementById("infectionChart").getContext("2d");
         new Chart(ctx, {
             type: "line",
             data: {
                 labels: dailyInfection.map((_, i) => `Day ${i + 1}`),
                 datasets: [{
-                    label: "Daily Infections",
+                    label: "Daily New Infections",
                     data: dailyInfection,
                     borderColor: createGradient(ctx),
                     backgroundColor: "rgba(255, 99, 132, 0.2)",
@@ -250,16 +251,11 @@
                 plugins: {
                     tooltip: {
                         enabled: true,
-                        // backgroundColor: "rgba(0, 0, 0, 0.8)", // Dark background for contrast
-                        // borderColor: "#FFF6B3", // Border color matching the theme
-                        // borderWidth: 1,
-                        // titleFont: { size: 14, weight: 'bold' },
-                        // bodyFont: { size: 14 },
-                        // callbacks: {
-                        //     title: (tooltipItems) => `📅 ${tooltipItems[0].label}`, // Adds a calendar icon before the day
-                        //     label: (context) => `🦠 Infected: ${context.raw}` // Adds a virus emoji for style
-                        // }
                     }
+                },
+                hover:{
+                    mode:"nearest",
+                    intersect:true
                 }
             }
         });

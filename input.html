@@ -190,8 +190,26 @@
                 infectedPercent: document.getElementById('inputInfected').value
             };
 
-            sessionStorage.setItem("attributes", JSON.stringify(value));
-            window.location.href = "simulator.html"; // Ensure simulator.html exists
+            if (validateInputs(value)) {
+
+                sessionStorage.setItem("attributes", JSON.stringify(value));
+                window.location.href = "simulator.html"; // Ensure simulator.html exists
+            }
+        }
+        function validateInputs(value) {
+
+            if ((parseInt(value.oneShotPercent) + parseInt(value.twoShotPercent)) > 100) {
+                alert("The given One Shot and Two Shot Percent is Invalid.");
+                return false;
+            }
+            else if ((parseInt(value.recoveryPercent) + parseInt(value.infectedPercent)) > 100) {
+                alert("The given Recovery and Infected Percent is Invalid.");
+                return false;
+            }
+            else {
+                return true;
+
+            }
         }
     </script>
 </body>

@@ -61,7 +61,7 @@ const createBarGraph = (initialData) => {
 			ctx.font = 'bold 12px Arial';
 			ctx.textAlign = 'center';
 			ctx.textBaseline = 'bottom';
-			ctx.fillStyle = 'black';
+			ctx.fillStyle = 'white';
 
 			data.datasets.forEach((dataset, i) => {
 				const meta = chart.getDatasetMeta(i);
