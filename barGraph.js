@@ -26,7 +26,7 @@ const createBarGraph = (initialData) => {
 				'rgba(54, 162, 235, 1)',
 				'rgba(255, 99, 132, 1)',
 				'rgb(75, 192, 106)',
-				'rgba(153, 102, 255, 1)'
+				'rgb(0, 0, 0)'
 			],
 			borderWidth: 1
 		}]

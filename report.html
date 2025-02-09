@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandemic Dashboard</title>
+    <title>Pandemic Simulator</title>
+    <link rel="icon" type="image/x-icon" href="/images/logo.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Define the new theme colors */
@@ -18,10 +19,8 @@
             --highlight-color: #FFF6B3;
             /* Soft Yellow */
             --text-color: #222846;
-            /* White */
+            /* Dark Text */
         }
-
-
 
         /* Apply a full-screen gradient background */
         body {
@@ -152,12 +151,13 @@
                 <div class="chart-wrapper"><canvas id="immunityChart"></canvas></div>
             </div>
 
-            <h2>Daily New Infection Progression</h2>
+            <h2>Daily New Cases Progression</h2>
             <canvas id="infectionChart" style="z-index: 3;"></canvas>
         </div>
     </div>
 
     <script>
+        // Initialize variables for simulation data
         let maxInfected = { infected: 1764, day: 16 };
         let minInfected = { infected: 1, day: 113 };
         let avgInfectionRate = 21.5;
@@ -168,28 +168,31 @@
         let twoShot = 75;
         let immunity = 85;
 
+        // Function to retrieve session data
         const getSessionData = () => {
-
             const data = JSON.parse(sessionStorage.getItem('simulationData'));
-
-            maxInfected = data.maxInfected;
-            minInfected = data.minInfected;
-            avgInfectionRate = data.avgInfectionRate;
-            dailyInfection = data.dailyInfection;
-            pandemicDuration = data.pandemicDuration;
-            avgMortalityRate = data.avgMortalityRate;
-            oneShot = data.oneShot;
-            twoShot = data.twoShot;
-            immunity = data.immunity;
+            if (data) {
+                maxInfected = data.maxInfected;
+                minInfected = data.minInfected;
+                avgInfectionRate = data.avgInfectionRate;
+                dailyInfection = data.dailyInfection;
+                pandemicDuration = data.pandemicDuration;
+                avgMortalityRate = data.avgMortalityRate;
+                oneShot = data.oneShot;
+                twoShot = data.twoShot;
+                immunity = data.immunity;
+            }
         }
-        getSessionData()
+        getSessionData();
 
+        // Update the statistics section with retrieved data
         document.getElementById("maxInfected").innerText = `${maxInfected.infected} on day ${maxInfected.day}`;
         document.getElementById("minInfected").innerText = `${minInfected.infected} on day ${minInfected.day}`;
         document.getElementById("avgInfectionRate").innerText = avgInfectionRate + "%";
         document.getElementById("pandemicDuration").innerText = pandemicDuration + " days";
         document.getElementById("mortalityRate").innerText = avgMortalityRate.toFixed(2) + "%";
 
+        // Function to create a gradient for the infection chart
         function createGradient(ctx) {
             let gradient = ctx.createLinearGradient(0, 0, 0, 400);
             gradient.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--highlight-color').trim());
@@ -197,13 +200,14 @@
             return gradient;
         }
 
+        // Function to create a pie chart
         function createPieChart(canvasId, label, value) {
             const ctx = document.getElementById(canvasId).getContext("2d");
 
             // Get CSS variables for colors
             const highlightColor = getComputedStyle(document.documentElement).getPropertyValue('--highlight-color').trim();
             const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
-            const textColor = getComputedStyle(document.documentElement).getPropertyValue('').trim(); // Border color
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim(); // Text color
 
             new Chart(ctx, {
                 type: "pie",
@@ -226,19 +230,19 @@
             });
         }
 
-
+        // Create pie charts for survival percentages
         createPieChart("oneShotChart", "One Shot Survival", oneShot);
         createPieChart("twoShotChart", "Two Shot Survival", twoShot);
         createPieChart("immunityChart", "Immunity Survival", immunity);
 
-
+        // Create the line chart for daily new infections
         const ctx = document.getElementById("infectionChart").getContext("2d");
         new Chart(ctx, {
             type: "line",
             data: {
                 labels: dailyInfection.map((_, i) => `Day ${i + 1}`),
                 datasets: [{
-                    label: "Daily New Infections",
+                    label: "Daily New Cases",
                     data: dailyInfection,
                     borderColor: createGradient(ctx),
                     backgroundColor: "rgba(255, 99, 132, 0.2)",
@@ -253,13 +257,12 @@
                         enabled: true,
                     }
                 },
-                hover:{
-                    mode:"nearest",
-                    intersect:true
+                hover: {
+                    mode: "nearest",
+                    intersect: true
                 }
             }
         });
-
     </script>
 </body>
 

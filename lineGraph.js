@@ -1,12 +1,13 @@
+// Get the context of the canvas for the line chart
 const ctx = document.getElementById('lineChart').getContext('2d');
-var lineChart
+var lineChart;
 
+// Function to create the initial line chart with given data
 function createLineChart(initialData) {
-
     lineChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Day 0'], // Initial label
+            labels: ['Day 0'], // Initial label for the x-axis
             datasets: [
                 {
                     label: 'Healthy Population',
@@ -49,32 +50,29 @@ function createLineChart(initialData) {
         options: {
             responsive: true,
             plugins: {
-                legend: { display: true },
-                tooltip: { enabled: true }
+                legend: { display: true }, // Show legend
+                tooltip: { enabled: true } // Enable tooltips
             },
             scales: {
                 x: {
-                    title: { display: true, text: 'Days' }
+                    title: { display: true, text: 'Days' } // X-axis title
                 },
                 y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Population' }
+                    beginAtZero: true, // Start y-axis at zero
+                    title: { display: true, text: 'Population' } // Y-axis title
                 }
             }
         }
     });
 }
 
-
-// Function to update the chart dynamically
+// Function to update the chart dynamically with new data
 function updateLineChart(dayData, day) {
-    lineChart.data.labels.push('Day ' + day);
-    lineChart.data.datasets[0].data.push(dayData.population);
-    lineChart.data.datasets[1].data.push(dayData.infected);
-    lineChart.data.datasets[2].data.push(dayData.recovery);
-    lineChart.data.datasets[3].data.push(dayData.dead);
+    lineChart.data.labels.push('Day ' + day); // Add new day label
+    lineChart.data.datasets[0].data.push(dayData.population); // Update healthy population data
+    lineChart.data.datasets[1].data.push(dayData.infected); // Update infected data
+    lineChart.data.datasets[2].data.push(dayData.recovery); // Update recovered data
+    lineChart.data.datasets[3].data.push(dayData.dead); // Update dead data
 
-    lineChart.update();
+    lineChart.update(); // Refresh the chart to display new data
 }
-
-

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pandemic Simulator</title>
+    <link rel="icon" type="image/x-icon" href="/images/logo.png">
     <style>
         /* Define Theme Colors */
         :root {
@@ -125,8 +126,8 @@
         <div class="form-group">
             <label>Immunity %:</label>
             <div class="slider-container">
-                <input type="range" id="inputImmunity" class="slider" min="0" max="100" value="50">
-                <span id="immunityValue" class="slider-value">50%</span>
+                <input type="range" id="inputImmunity" class="slider" min="0" max="100" value="10">
+                <span id="immunityValue" class="slider-value">10%</span>
             </div>
         </div>
         <div class="form-group">
@@ -174,7 +175,6 @@
         sliders.forEach(slider => {
             const input = document.getElementById(slider.id);
             const display = document.getElementById(slider.display);
-
             input.addEventListener('input', () => {
                 display.textContent = input.value + (slider.suffix || '');
             });
@@ -191,25 +191,14 @@
             };
 
             if (validateInputs(value)) {
-
                 sessionStorage.setItem("attributes", JSON.stringify(value));
-                window.location.href = "simulator.html"; // Ensure simulator.html exists
+                window.location.href = "simulator.html";
             }
         }
+
         function validateInputs(value) {
-
-            if ((parseInt(value.oneShotPercent) + parseInt(value.twoShotPercent)) > 100) {
-                alert("The given One Shot and Two Shot Percent is Invalid.");
-                return false;
-            }
-            else if ((parseInt(value.recoveryPercent) + parseInt(value.infectedPercent)) > 100) {
-                alert("The given Recovery and Infected Percent is Invalid.");
-                return false;
-            }
-            else {
-                return true;
-
-            }
+            return (parseInt(value.oneShotPercent) + parseInt(value.twoShotPercent) <= 100) &&
+                (parseInt(value.recoveryPercent) + parseInt(value.infectedPercent) <= 100);
         }
     </script>
 </body>

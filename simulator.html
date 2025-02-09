@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandemic Simulator Dashboard</title>
+    <title>Pandemic Simulator</title>
+    <link rel="icon" type="image/x-icon" href="/images/logo.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -46,7 +47,6 @@
     /* Cards with Solid Background */
     .card {
         background-color: rgba(0, 0, 0, 0.6);
-        /* Dark semi-transparent */
         color: var(--text-color);
         border: none;
         border-radius: 15px;
@@ -75,7 +75,6 @@
         background-color: var(--highlight-color);
     }
 
-    /* Chart Background */
     canvas {
         background-color: rgba(0, 0, 0, 0.3);
         border-radius: 0 0 5px 5px;
@@ -87,19 +86,28 @@
         border: 1px solid #34495e;
         border-radius: 50%;
         position: absolute;
-        margin: -100px -555px;
     }
 
     #canvas {
-        height: 70vh;
+        height: 100%;
         width: 100%;
-        /* border: 2px solid #bdc3c7; */
+        position: static;
     }
 
-    /* Bar graph - increase size */
+    .simulatorArea {
+        padding: 10px;
+        height: 70vh;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: var(--text-color);
+        border: none;
+        border-radius: 0 0 15px 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        margin-bottom: 25px;
+    }
+
     #barChart {
         height: 10vh;
-        /* Increase height of bar chart */
         width: 100%;
     }
 </style>
@@ -123,7 +131,7 @@
                         <button class="btn btn-custom" onclick="start()">Start</button>
                         <button class="btn btn-custom" onclick="pause()">Pause</button>
                         <button class="btn btn-custom" onclick="stop()">Stop</button>
-                        <p id="info" class="mt-3">Day 1</p>
+                        <p id="info" class="mt-3">Day 0</p>
                     </div>
                 </div>
 
@@ -175,10 +183,11 @@
             </div>
 
             <!-- Right Section: Charts & Visualization -->
+
             <div class="col-md-8">
-                <div class="card mb-4">
-                    <div class="card-header">Simulation Area</div>
-                    <div class="card-body">
+                <div>
+                    <div class="card-header" style="border-radius:5px 5px 0 0;">Simulation Area</div>
+                    <div class="simulatorArea">
                         <div id="canvas"></div>
                     </div>
                 </div>
@@ -212,63 +221,60 @@
     <script src="pieChart.js"></script>
 
     <script>
-        var id;
-        var isStart = false;
+        var id; // Interval ID for simulation control
+        var isStart = false; // Flag to check if simulation is running
 
+        // Function to stop the simulation and navigate to the report page
         function stop() {
             clearInterval(id);
-            isStart = false;
-            sendToSession()
-            window.location.href = "report.html"
+            sendToSession();
+            window.location.href = "report.html";
         }
 
-        function pause() {
+        // Function to pause the simulation
+        function pause(flag = false) {
             clearInterval(id);
-            isStart = false;
+            isStart = flag;
         }
 
+        // Function to start the simulation
         function start() {
             if (!isStart) {
                 isStart = true;
-
                 id = setInterval(() => {
                     if (day >= WEEKS * 7) {
-                        stop()
-                        console.log("Interval has been cleared.");
-                        console.log(temp);
-
+                        alert("Simulation has ended!\nClick on Stop to view the report.");
+                        pause(true);
                     }
-
                     updatePage();
-
-                    setAttribute()
-                    setPercentAttribute()
+                    setAttribute();
+                    setPercentAttribute();
                     const dataForDays = getDatasetData();
-
                     if (dataForDays == null) {
-                        stop();
+                        alert("Simulation has ended!\nClick on Stop to view the report.");
+                        pause(true);
                         return;
                     }
-
                     document.getElementById("info").innerHTML = "Day " + day;
                     updateBarGraph(dataForDays);
                     updateLineChart(dataForDays, day);
-                    updatePieChart(getPercentDataSet())
-                    maxMinCases(day)
+                    updatePieChart(getPercentDataSet());
+                    maxMinCases(day);
 
                     window.addEventListener("resize", () => {
                         window.scrollTo(0, 0);
                         window.location.reload();
-                    })
+                    });
 
                 }, TIME);
             }
         }
 
+        // Initialize the charts after a delay
         setTimeout(() => {
             start();
-            createBarGraph(getDatasetData())
-            createLineChart(getDatasetData())
+            createBarGraph(getDatasetData());
+            createLineChart(getDatasetData());
             createPieChart(getPercentDataSet());
         }, TIME);
     </script>

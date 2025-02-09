@@ -50,10 +50,5 @@ function updatePieChart(newData) {
         newData.oneShotPercent,
         newData.twoShotPercent
     ];
-    doughnutChart.update(); // Refresh the chart
+    doughnutChart.update();
 }
-
-// Initial Data Example (Modify as Needed)
-
-
-// Create the initial chart
